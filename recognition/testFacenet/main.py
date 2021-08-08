@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.insert(1, '../lfw')
+sys.path.insert(1, '../../data/lfw')
 import torch
 from torchvision import transforms
 from PIL import Image
@@ -11,7 +11,7 @@ import pickle
 
 
 if __name__ == "__main__":
-    data_direction = '../lfw'
+    data_direction = '../../data/lfw'
     num_embeddings = 128
 
     #DATA
@@ -23,12 +23,13 @@ if __name__ == "__main__":
     print(len(mydataset))
     print(10586 + 2647)
     train_dataset, test_dataset = torch.utils.data.random_split(mydataset, lengths = [10586, 2647])
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=400, shuffle=True, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=100, shuffle=True, num_workers=4)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=256, shuffle=True, num_workers=4)
     print('hi')
     for _, (data, target) in enumerate(train_loader):
        data = data.cuda()
        print(data.mean())
+       break
     
     #NETWORK
     net = VGG('VGG11', num_embeddings)
@@ -37,7 +38,7 @@ if __name__ == "__main__":
         with torch.cuda.device(gpu_device):
             net.cuda()
     if(True):
-        with open('checkp.pickle', 'rb') as handle:
+        with open('../../checkpoints/checkp.pickle', 'rb') as handle:
             net = pickle.load(handle)
 
     # #TRAIN

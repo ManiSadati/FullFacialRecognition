@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.insert(1, '../lfw')
+sys.path.insert(1, '../../data/lfw')
 import torch
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
