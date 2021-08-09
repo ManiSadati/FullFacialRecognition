@@ -8,6 +8,8 @@ from new_dataset import *
 from models import *
 from loss import TripletLoss
 import pickle
+import time
+import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
@@ -23,14 +25,32 @@ if __name__ == "__main__":
     print(len(mydataset))
     print(10586 + 2647)
     train_dataset, test_dataset = torch.utils.data.random_split(mydataset, lengths = [10586, 2647])
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=100, shuffle=True, num_workers=4)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=256, shuffle=True, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=200, shuffle=True, num_workers=3, pin_memory=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=256, shuffle=True, num_workers=3, pin_memory=True)
     print('hi')
-    for _, (data, target) in enumerate(train_loader):
-       data = data.cuda()
-       print(data.mean())
-       break
-    
+
+    sdf = mydataset.labels
+    cnt = 1
+    asdf = []
+    for i in range(1, len(sdf)):
+        if(sdf[i] != sdf[i-1]):
+            if(cnt == 530):
+                print(sdf[i-1])
+            asdf.append(cnt)
+            cnt = 0
+        cnt += 1
+    asdf.append(cnt)
+    print(asdf)
+    plt.hist(asdf, bins = 20)
+    plt.show()
+
+
+    # time1 = time.time()
+    # for _, (data, target) in enumerate(train_loader):
+    #    data = data.cuda()
+    #    print(data.mean())
+    # time2 = time.time()
+    # print(time2 - time1)
     #NETWORK
     net = VGG('VGG11', num_embeddings)
     gpu_device = 0
