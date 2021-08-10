@@ -34,9 +34,8 @@ if __name__ == "__main__":
     asdf = []
     for i in range(1, len(sdf)):
         if(sdf[i] != sdf[i-1]):
-            if(cnt == 530):
-                print(sdf[i-1])
-            asdf.append(cnt)
+            if(cnt > 1 and cnt < 20):
+                asdf.append(cnt)
             cnt = 0
         cnt += 1
     asdf.append(cnt)
