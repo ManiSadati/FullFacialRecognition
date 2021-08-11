@@ -16,6 +16,7 @@ from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 from tqdm import tqdm
 import cv2 as cv
+import copy
 
 def dynamic_resize(shape, stride=64):
     max_size = max(shape[0], shape[1])
@@ -48,28 +49,29 @@ def scale_coords_landmarks(img1_shape, coords, img0_shape, ratio_pad=None):
     coords[:, 9].clamp_(0, img0_shape[0])  # y5
     return coords
 
-def show_results(img, xywh, conf, landmarks, class_num):
-    h,w,c = img.shape
+def show_results(image, xywh, conf, landmarks, class_num):
+    h,w,c = image.shape
     tl = 1 or round(0.002 * (h + w) / 2) + 1  # line/font thickness
-    x1 = int(xywh[0] * w - 0.5 * xywh[2] * w)
-    y1 = int(xywh[1] * h - 0.5 * xywh[3] * h)
-    x2 = int(xywh[0] * w + 0.5 * xywh[2] * w)
-    y2 = int(xywh[1] * h + 0.5 * xywh[3] * h)
-    cv2.rectangle(img, (x1,y1), (x2, y2), (0,255,0), thickness=tl, lineType=cv2.LINE_AA)
-
+    x1 = xywh[0]
+    y1 = xywh[1]
+    x2 = xywh[2] + x1
+    y2 = xywh[3] + y1
+    #img = cv2.rectangle(img, (x1,y1), (x2, y2), (0,255,0), thickness=2, lineType=cv2.LINE_AA)
+    img = copy.deepcopy(image)
+    img = cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0 , 0), 2,  lineType=cv2.LINE_AA)
     clors = [(255,0,0),(0,255,0),(0,0,255),(255,255,0),(0,255,255)]
 
     for i in range(5):
         point_x = int(landmarks[2 * i] * w)
         point_y = int(landmarks[2 * i + 1] * h)
-        cv2.circle(img, (point_x, point_y), tl+1, clors[i], -1)
+        img = cv2.circle(img, (point_x, point_y), tl+1, clors[i], -1)
 
-    tf = max(tl - 1, 1)  # font thickness
     label = str(int(class_num)) + ': ' + str(conf)[:5]
-    cv2.putText(img, label, (x1, y1 - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
+    img = cv2.putText(img, label, (x1, y1 - 2), 0, tl / 3, [225, 255, 255], thickness=1, lineType=cv2.LINE_AA)
     return img
 
-def detect(model, img0):
+def detect(model, img0, opt):
+    device = select_device(opt.device)
     stride = int(model.stride.max())  # model stride
     imgsz = opt.img_size
     if imgsz <= 0:                    # original size    
@@ -106,21 +108,25 @@ def detect(model, img0):
             y1 = int(xywh[1] * h - 0.5 * xywh[3] * h)
             x2 = int(xywh[0] * w + 0.5 * xywh[2] * w)
             y2 = int(xywh[1] * h + 0.5 * xywh[3] * h)
-            boxes.append([x1, y1, x2-x1, y2-y1, conf])
+            #boxes.append([x1, y1, x2-x1, y2-y1, conf])
+            boxes.append([x1, y1, x2-x1, y2-y1, conf, j, landmarks, class_num])
     return boxes
 
 def make_rects(img, boxes):
+    faces = []
+    newboxes = []
     for box in boxes:
         if(box[4]<0.5):
             continue
+        newboxes.append(box)
         x1 = box[0]
         y1 = box[1]
         x2 = box[2] + x1
         y2 = box[3] + y1
-        img = cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0 , 0), 2)
-        
+        ind = box[5]        
+        image = show_results(img, [box[0], box[1], box[2], box[3]], box[4], box[6], box[7])
 
-    return img
+    return image, newboxes
 
 
 if __name__ == '__main__':
@@ -162,6 +168,7 @@ if __name__ == '__main__':
 
         start = time.time()
         lastframe = 0
+        allignedframe = 0
         cnt = 10000
         if not cap.isOpened():
             print("Cannot open camera")
@@ -179,14 +186,16 @@ if __name__ == '__main__':
 
             if(now - start > 0.1) or (type(lastframe) == int):
                 p1 = time.time()
-                boxes = detect(model, frame)
+                boxes = detect(model, frame, opt)
                 #print(boxes)
                 result = make_rects(frame, boxes)
                 lastframe = result
                 p2 = time.time()
                 start = now
                 print(p2 - p1)
-            cv.imshow('frame', lastframe)# should it be outside if ????????
+
+            cv.imshow('frame', lastframe)
+            cv.imshow('alligned', frame)
 
             if cv.waitKey(1) == ord('q') :
                 break
