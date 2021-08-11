@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 p2 = time.time()
                 start = now
                 print(p2 - p1)
-                cv.imshow('frame', lastframe)
+            cv.imshow('frame', lastframe)
             
 
             if cv.waitKey(1) == ord('q') :

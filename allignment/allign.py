@@ -18,7 +18,7 @@ def allign_face(face, xywh, landmarks):
     dy = righteye_y - lefteye_y
     angle = np.degrees(np.arctan2(dy, dx))
     img = rotateImage(face, angle)
-    cv.imshow('test', img)
+    cv.imshow('test' + str(xywh[5]), img)
     return img
 
 def allign(img, boxes):

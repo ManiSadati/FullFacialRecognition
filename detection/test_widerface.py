@@ -124,9 +124,9 @@ def make_rects(img, boxes):
         x2 = box[2] + x1
         y2 = box[3] + y1
         ind = box[5]        
-        image = show_results(img, [box[0], box[1], box[2], box[3]], box[4], box[6], box[7])
+        img = show_results(img, [box[0], box[1], box[2], box[3]], box[4], box[6], box[7])
 
-    return image, newboxes
+    return img, newboxes
 
 
 if __name__ == '__main__':
