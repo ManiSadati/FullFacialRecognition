@@ -164,6 +164,7 @@ if __name__ == '__main__':
         path1 = 'http://192.168.1.33:4747/mjpegfeed'
         path2 = 'http://10.28.0.50:4747/mjpegfeed'
         path3 = 'mani.mp4'
+        path4 = 0
         cap = cv.VideoCapture(path1)
 
         start = time.time()

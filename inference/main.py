@@ -30,7 +30,7 @@ def main_process(frame):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='../data/yolov5n-0.5.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='../checkpoints/yolov5n-0.5.pt', help='model.pt path(s)')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.02, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
@@ -56,6 +56,7 @@ if __name__ == '__main__':
         path1 = 'http://192.168.1.33:4747/mjpegfeed'
         path2 = 'http://10.28.0.50:4747/mjpegfeed'
         path3 = 'mani.mp4'
+        path4 = 0
         cap = cv.VideoCapture(path1)
 
         start = time.time()
