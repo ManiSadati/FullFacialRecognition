@@ -3,6 +3,7 @@ import sys
 sys.path.insert(1, '../')
 sys.path.insert(1, '../detection')
 sys.path.insert(1, '../allignment')
+sys.path.insert(1, '../recognition/testSphereFace')
 import argparse
 import time
 from pathlib import Path
@@ -20,11 +21,18 @@ import cv2 as cv
 
 from detection.test_widerface import *
 from allignment.allign import allign
+from recognition.testSphereFace import *
+from recognition.testSphereFace.inference_recognition import *
 
 def main_process(frame):
-    boxes = detect(model, frame, opt)
+    boxes = detect(detection_model, frame, opt)
     result, boxes = make_rects(frame, boxes)
     faces = allign(frame, boxes)
+    if(faces == []):
+        return result, faces
+    face_embeddings = face2embedding(faces, recognition_model)
+    verified_names = verify_embeddings(face_embeddings, gallery_embeddings, gallary_names)
+    print(verified_names)
     return result, faces
 
 
@@ -50,7 +58,10 @@ if __name__ == '__main__':
     
     device = select_device(opt.device)
     
-    model = attempt_load(opt.weights, map_location=device)  # load FP32 model
+    detection_model = attempt_load(opt.weights, map_location=device)  # load FP32 model
+
+    recognition_model, gallery_embeddings, gallary_names = load_recognition()
+    
     with torch.no_grad():
         
         path1 = 'http://192.168.1.33:4747/mjpegfeed'
