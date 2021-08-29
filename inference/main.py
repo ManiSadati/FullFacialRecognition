@@ -31,7 +31,7 @@ def main_process(frame):
     if(faces == []):
         return result, faces
     face_embeddings = face2embedding(faces, recognition_model)
-    verified_names = verify_embeddings(face_embeddings, gallery_embeddings, gallary_names)
+    verified_names = verify_embeddings(face_embeddings, gallery_embeddings, gallery_names)
     print(verified_names)
     return result, faces
 
@@ -60,11 +60,12 @@ if __name__ == '__main__':
     
     detection_model = attempt_load(opt.weights, map_location=device)  # load FP32 model
 
-    recognition_model, gallery_embeddings, gallary_names = load_recognition()
+    recognition_model, gallery_embeddings, gallery_names = load_recognition()
     
     with torch.no_grad():
         
-        path1 = 'http://192.168.1.33:4747/mjpegfeed'
+        path1 = 'http://192.168.1.34:4747/mjpegfeed'
+        path11 = 'http://192.168.1.33:4747/mjpegfeed'
         path2 = 'http://10.28.0.50:4747/mjpegfeed'
         path3 = 'mani.mp4'
         path4 = 0
